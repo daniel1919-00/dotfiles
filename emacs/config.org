@@ -8,35 +8,38 @@
 - [[#general][General]]
   - [[#setup][Setup]]
   - [[#fonts][Fonts]]
-  - [[#keybindings][Keybindings]]
   - [[#eshell][Eshell]]
 - [[#packages][Packages]]
   - [[#setup-1][Setup]]
   - [[#toc-org][Toc org]]
   - [[#all-the-icons][All the icons]]
   - [[#ivy][Ivy]]
+  - [[#projectile][Projectile]]
+  - [[#dashboard][Dashboard]]
+  - [[#flycheck][Flycheck]]
+  - [[#autocompletion][Autocompletion]]
+- [[#keybindings][Keybindings]]
 
 * General
 
 ** Setup
-
 #+begin_src emacs-lisp
   (setq-default inhibit-startup-message t
                 tab-width 4
                 indent-tabs-mode nil
                 compilation-scroll-output t)
 
-
   (setq make-backup-files nil) ; stop creating ~ files
 
   (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
 
   (setq auto-save-file-name-transforms
-      '((".*" "~/.emacs.d/autosave/" t)))
+        '((".*" "~/.emacs.d/autosave/" t)))
+
+  (setq vc-follow-symlinks t)
 
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (desktop-save-mode 1)
   (scroll-bar-mode -1)
   (global-display-line-numbers-mode)
   (global-visual-line-mode t)
@@ -47,15 +50,6 @@
 ** Fonts
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist '(font . "Monaspace Neon 16"))
-#+end_src
-
-** Keybindings
-#+begin_src emacs-lisp
-  (global-set-key [?\C-z] 'undo)
-  (global-set-key [?\C-\S-z] 'undo-redo)
-  (global-set-key [?\C-d] 'duplicate-line)
-  (global-set-key (kbd "C-=") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
 #+end_src
 
 ** Eshell
@@ -144,4 +138,101 @@ https://github.com/abo-abo/swiper
     :config
     (ivy-set-display-transformer 'ivy-switch-buffer
                                  'ivy-rich-switch-buffer-transformer))
+#+end_src
+
+** Projectile
+[[https://github.com/bbatsov/projectile][Projectile]] is a project interaction library for Emacs.
+
+#+begin_src emacs-lisp
+(use-package projectile
+  :config
+  (projectile-mode 1)) 
+#+end_src
+
+** Dashboard
+Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
+
+#+begin_src emacs-lisp
+  (use-package dashboard
+  :ensure t 
+  :init
+  (setq initial-buffer-choice 'dashboard-open)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+  (setq dashboard-center-content nil) ;; set to 't' for centered content
+  (setq dashboard-items '((recents . 5)
+                          (agenda . 5 )
+                          (bookmarks . 3)
+                          (projects . 3)
+                          (registers . 3)))
+  :custom
+  (dashboard-modify-heading-icons '((recents . "file-text")
+                                    (bookmarks . "book")))
+  :config
+  (dashboard-setup-startup-hook))
+#+end_src
+
+** Flycheck
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :defer t
+    :diminish
+    :init (global-flycheck-mode))
+
+  (with-eval-after-load 'rust-mode
+  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+#+end_src
+
+** Autocompletion
+#+begin_src emacs-lisp
+  (use-package corfu
+    ;; Optional customizations
+    ;; :custom
+    ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+    ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+    ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+    ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+
+    ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
+
+    ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+    ;; be used globally (M-/).  See also the customization variable
+    ;; `global-corfu-modes' to exclude certain modes.
+    :init
+    (global-corfu-mode))
+
+  (use-package emacs
+    :custom
+    ;; TAB cycle if there are only few candidates
+    ;; (completion-cycle-threshold 3)
+
+    ;; Enable indentation+completion using the TAB key.
+    ;; `completion-at-point' is often bound to M-TAB.
+    (tab-always-indent 'complete)
+
+    ;; Emacs 30 and newer: Disable Ispell completion function.
+    ;; Try `cape-dict' as an alternative.
+    (text-modeode-ispell-word-completion nil)
+
+    ;; Hide commands in M-x which do not apply to the current mode.  Corfu
+    ;; commands are hidden, since they are not used via M-x. This setting is
+    ;; useful beyond Corfu.
+    (read-extended-command-predicate #'command-completion-default-include-p))
+#+end_src
+
+* Keybindings
+
+#+begin_src emacs-lisp
+  (global-set-key [?\C-z] 'undo)
+  (global-set-key [?\C-\S-z] 'undo-redo)
+  (global-set-key [?\C-d] 'duplicate-line)
+  (global-set-key (kbd "C-=") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
 #+end_src
