@@ -113,7 +113,6 @@ https://melpa.org/#/getting-started
 
 ** Dired
 #+begin_src emacs-lisp
-  (use-package all-the-icons-dired)
   (use-package dired-ranger)
 
   (defun dw/dired-mode-hook ()
@@ -138,10 +137,7 @@ https://melpa.org/#/getting-started
           dired-kill-when-opening-new-dired-buffer t
           delete-by-moving-to-trash t)
 
-    (add-hook 'dired-mode-hook #'dw/dired-mode-hook)
-
-    (unless dw/exwm-enabled
-      (global-set-key (kbd "s-e") #'dired-jump)))
+    (add-hook 'dired-mode-hook #'dw/dired-mode-hook))
 #+end_src
 
 ** Tab bar
