@@ -11,50 +11,63 @@
   - [[#eshell][Eshell]]
 - [[#packages][Packages]]
   - [[#setup-1][Setup]]
+  - [[#org-mode][Org mode]]
+  - [[#which-key][Which key]]
   - [[#appearance][Appearance]]
   - [[#dired][Dired]]
-  - [[#tab-bar][Tab bar]]
-  - [[#toc-org][Toc org]]
   - [[#all-the-icons][All the icons]]
   - [[#ivy][Ivy]]
   - [[#projectile][Projectile]]
   - [[#dashboard][Dashboard]]
   - [[#flycheck][Flycheck]]
-  - [[#autocompletion][Autocompletion]]
+  - [[#magit][Magit]]
+  - [[#lsp][LSP]]
   - [[#language-servers][Language servers]]
+  - [[#autocompletion][Autocompletion]]
 - [[#keybindings][Keybindings]]
 
 * General
 
 ** Setup
 #+begin_src emacs-lisp
-  (setq-default inhibit-startup-message t
-                tab-width 4
-                indent-tabs-mode nil
-                compilation-scroll-output t)
+    (setq-default inhibit-startup-message t
+                  tab-width 4
+                  indent-tabs-mode nil
+                  compilation-scroll-output t)
 
-  (setq make-backup-files nil) ; stop creating ~ files
+    (setq make-backup-files nil) ; stop creating ~ files
 
-  (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
+    (setq auto-save-list-file-prefix "~/.emacs.d/autosave/")
 
-  (setq auto-save-file-name-transforms
-        '((".*" "~/.emacs.d/autosave/" t)))
+    (setq auto-save-file-name-transforms
+          '((".*" "~/.emacs.d/autosave/" t)))
 
-  (setq vc-follow-symlinks t)
-  (setq ad-redefinition-action 'accept)
+    (setq vc-follow-symlinks t)
+    (setq ad-redefinition-action 'accept)
 
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (scroll-bar-mode -1)
-  (global-display-line-numbers-mode)
-  (global-visual-line-mode t)
-  (cua-mode t)
-  (require 'org-tempo)
-  (setq visible-bell t)
-  (set-default-coding-systems 'utf-8)
-  (setq large-file-warning-threshold nil)
-  (setq xref-search-program 'ripgrep
-      grep-command "rg -nS --noheading")
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (scroll-bar-mode -1)
+    (global-display-line-numbers-mode)
+    (global-visual-line-mode t)
+    (cua-mode t)
+    (require 'org-tempo)
+    (setq visible-bell t)
+    (set-default-coding-systems 'utf-8)
+    (setq large-file-warning-threshold nil)
+    (setq xref-search-program 'ripgrep
+        grep-command "rg -nS --noheading")
+
+  ;; Disable line numbers for some modes
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                    treemacs-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  (column-number-mode)
+  (org-indent-mode)
+  (variable-pitch-mode 1)
 #+end_src
 
 ** Fonts
@@ -90,6 +103,36 @@ https://melpa.org/#/getting-started
   (setq use-package-always-ensure t)
 #+end_src
 
+** Org mode
+#+begin_src emacs-lisp
+  (use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+  (defun efs/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :hook (org-mode . efs/org-mode-visual-fill))
+#+end_src
+
+** Which key
+#+begin_src emacs-lisp
+  (use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 1))
+#+end_src
+
 ** Appearance
 #+begin_src emacs-lisp
   (use-package doom-themes
@@ -109,6 +152,10 @@ https://melpa.org/#/getting-started
     (doom-themes-treemacs-config)
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config))
+
+  (use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
 #+end_src
 
 ** Dired
@@ -140,52 +187,6 @@ https://melpa.org/#/getting-started
     (add-hook 'dired-mode-hook #'dw/dired-mode-hook))
 #+end_src
 
-** Tab bar
-#+begin_src emacs-lisp
-  (defun dw/switch-tab-buffer (&optional arg)
-    (interactive "P")
-    (cond
-     ((and arg (> (car arg) 0)) (call-interactively #'consult-buffer))
-     ((project-current) (call-interactively #'project-switch-to-buffer))
-     (t (call-interactively #'consult-buffer))))
-
-  (use-package tab-bar
-    :ensure nil
-    :bind (("s-[" . tab-bar-switch-to-prev-tab)
-           ("s-]" . tab-bar-switch-to-next-tab)
-           ("s-{" . (lambda ()
-                      (interactive)
-                      (tab-move -1)))
-           ("s-}" . (lambda ()
-                      (interactive)
-                      (tab-move 1))))
-    :custom
-    (tab-bar-show t)
-    (tab-bar-close-button-show nil)
-    (tab-bar-auto-width nil)
-    (tab-bar-format '(tab-bar-format-menu-bar
-                      dw/exwm-workspace-icon
-                      tab-bar-format-tabs-groups
-                      tab-bar-separator
-                      dw/tmr-mode-line
-                      tab-bar-separator
-                      tab-bar-format-align-right
-                      tab-bar-format-global))
-
-    ;; Like winner-mode for tabs
-    (tab-bar-history-mode 1)
-    (tab-bar-mode 1))
-#+end_src
-
-** Toc org
-toc-org helps you to have an up-to-date table of contents in org files without exporting.
-https://github.com/snosov1/toc-org
-
-#+begin_src emacs-lisp
-  (use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
-#+end_src
 
 ** All the icons
 https://github.com/domtronn/all-the-icons.el
@@ -282,63 +283,61 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 #+end_src
 
-** Autocompletion
+** Magit
 #+begin_src emacs-lisp
-    (use-package corfu
-      :disabled
-      :ensure t
-      ;; Optional customizations
-      :custom
-      (corfu-cycle t)                 ; Allows cycling through candidates
-      (corfu-auto t)                  ; Enable auto completion
-      (corfu-auto-prefix 2)
-      (corfu-auto-delay 0.1)
-      (corfu-popupinfo-delay '(0.5 . 0.2))
-      (corfu-preview-current 'insert) ; insert previewed candidate
-      (corfu-preselect 'prompt)
-      (corfu-on-exact-match nil)      ; Don't auto expand tempel snippets
-      ;; Optionally use TAB for cycling, default is `corfu-complete'.
-      :bind (:map corfu-map
-                  ("TAB"        . corfu-next)
-                  ([tab]        . corfu-next)
-                  ("S-TAB"      . corfu-previous)
-                  ([backtab]    . corfu-previous)
-                  ("S-<return>" . corfu-insert)
-                  ("RET"        . nil))
+  (use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+#+end_src
 
-      :init
-      (global-corfu-mode)
-      (corfu-history-mode)
-      (corfu-popupinfo-mode)) ; Popup completion info
-  
-  (use-package cape
-    :ensure t
-    :defer 10
-    :bind ("C-c f" . cape-file)
-    :init
-    ;; Add `completion-at-point-functions', used by `completion-at-point'.
-    (defun my/add-shell-completion ()
-      (interactive)
-      (add-to-list 'completion-at-point-functions 'cape-history)
-      (add-to-list 'completion-at-point-functions 'pcomplete-completions-at-point))
-    (add-hook 'shell-mode-hook #'my/add-shell-completion nil t)
-    :config
-    ;; Make capfs composable
-    (advice-add #'eglot-completion-at-point :around #'cape-wrap-nonexclusive)
-    (advice-add #'comint-completion-at-point :around #'cape-wrap-nonexclusive)
+** LSP
+#+begin_src emacs-lisp
+(defun efs/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
 
-    ;; Silence then pcomplete capf, no errors or messages!
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t))
 
-    ;; Ensure that pcomplete does not write to the buffer
-    ;; and behaves as a pure `completion-at-point-function'.
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
 #+end_src
 
 ** Language servers
 #+begin_src emacs-lisp
 
 #+end_src
+
+** Autocompletion
+#+begin_src emacs-lisp
+    (use-package company
+      :after lsp-mode
+      :hook (lsp-mode . company-mode)
+      :bind (:map company-active-map
+             ("<tab>" . company-complete-selection))
+            (:map lsp-mode-map
+             ("<tab>" . company-indent-or-complete-common))
+      :custom
+      (company-minimum-prefix-length 1)
+      (company-idle-delay 0.0))
+
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+#+end_src
+
 
 * Keybindings
 
