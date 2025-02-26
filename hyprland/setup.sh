@@ -14,20 +14,10 @@ echo "Beware, lots of confirmation incoming!"
 
 yay -S $(cat <<EOF
 alacritty
-dolphin
-dolphin-plugins
-kservice5
-kdbusaddons5
-kfilemetadata5
-kconfig5
-kcoreaddons5
-kcrash5
-kguiaddons5
-ki18n5
-kitemviews5
-kwidgetsaddons5
-kwindowsystem5
-kservice5
+nautilus
+nautilus-admin-gtk4
+nautilus-image-converter
+nautilus-open-any-terminal
 dunst
 pipewire
 wireplumber
