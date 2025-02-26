@@ -1,0 +1,139 @@
+// -*- mode: jsonc -*-
+{
+	// ===============
+	// === GENERAL ===
+	// ===============
+
+	"layer": "top",
+	"height": 34,
+
+	"modules-left": [
+        "hyprland/workspaces"
+    ],
+	"modules-center": ["hyprland/window"],
+	"modules-right": [
+		"network",
+		"cpu",
+		"memory",
+		"battery",
+		"wireplumber",
+        "clock",
+        "idle_inhibitor",
+        "tray"
+	],
+
+	// ============
+	// === LEFT ===
+	// ============
+
+	"hyprland/workspaces": {
+		"disable-scroll": true,
+		"all-outputs": true,
+		"format": "{name}",
+		"on-click": "activate",
+		"sort-by-number": true
+	},
+
+	// ==============
+	// === MIDDLE ===
+	// ==============
+
+	"hyprland/window": {
+		"max-length": 40
+	},
+
+	// =============
+	// === RIGHT ===
+	// =============
+
+    "network": {
+       "format": "{ifname}",
+       "format-wifi": "{icon}  {essid}",
+       "format-ethernet": "{ifname}",
+       "format-disconnected": "",
+       "tooltip-format": "{ifname} via {gwaddri}",
+       "tooltip-format-wifi": "{icon} {ifname} @ {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\nFreq: {frequency}MHz\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}",
+       "tooltip-format-ethernet": "{ifname}\nIP: {ipaddr}\n up: {bandwidthUpBits} down: {bandwidthDownBits}",
+       "tooltip-format-disconnected": "Disconnected",
+       "max-length": 50,
+       "on-click-right": "~/.config/waybar/scripts/nm-applet.sh",
+       "format-icons": {
+			"wifi": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"]
+		}
+    },
+    
+	"cpu": {
+		"format": "{usage}% ",
+		"tooltip": false
+	},
+
+	"memory": {
+		"format": "{}% "
+	},
+
+	"battery": {
+		"format-fu": "{capacity}% 󰁹",
+		"format-95": "{capacity}% 󰂂",
+		"format-85": "{capacity}% 󰂁",
+		"format-75": "{capacity}% 󰂀",
+		"format-65": "{capacity}% 󰁿",
+		"format-55": "{capacity}% 󰁾",
+		"format-45": "{capacity}% 󰁽",
+		"format-35": "{capacity}% 󰁼",
+		"format-25": "{capacity}% 󰁻",
+		"format-15": "{capacity}% 󰁺",
+		"format-05": "{capacity}% 󰂎",
+		"format-charging-fu": "{capacity}% 󰂅",
+		"format-charging-95": "{capacity}% 󰂋",
+		"format-charging-85": "{capacity}% 󰂊",
+		"format-charging-75": "{capacity}% 󰢞",
+		"format-charging-65": "{capacity}% 󰂉",
+		"format-charging-55": "{capacity}% 󰢝",
+		"format-charging-45": "{capacity}% 󰂈",
+		"format-charging-35": "{capacity}% 󰂇",
+		"format-charging-25": "{capacity}% 󰂆",
+		"format-charging-15": "{capacity}% 󰢜",
+		"format-charging-05": "{capacity}% 󰢟",
+		"states": {
+			"fu": 100,
+			"95": 95,
+			"85": 85,
+			"75": 75,
+			"65": 65,
+			"55": 55,
+			"45": 45,
+			"35": 35,
+			"25": 25,
+			"15": 15,
+			"05": 5
+		},
+		"tooltip": true
+	},
+
+    "wireplumber": {
+        "format": "{volume}% {icon}",
+        "format-muted": "x",
+        "on-click": "easyeffects",
+        "format-icons": ["", "", ""]
+    },
+    
+	"clock": {
+		"format": "{:%H:%M %d.%m.%Y}",
+		"tooltip": false,
+		"on-click": "gnome-calendar"
+	},
+
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "min-length": 3,
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        }
+    },
+    
+    "tray": {
+		"spacing": 8
+	},
+
+}

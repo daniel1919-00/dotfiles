@@ -1,15 +1,34 @@
 #!/bin/sh
 
+scriptPath=$(pwd)
+backupsDir=~/"00_dotfiles_backup/$(date +"%Y-%m-%d %H %M")"
+doBackup=false
+
+read -p "Do you want to create a backup? (y/n): " choice
+
+if echo "$choice" | grep -iq "^y"; then
+    doBackup=true
+    mkdir -p "$backupsDir"
+    echo "Backup directory created: $backupsDir"
+else
+    echo "Backup skipped!"
+fi
+
+sleep 1
+
 setup()
 {
     targetDir=$1
+    sourceDir="$scriptPath/$2"
+    configuredApp=$3
 
-    if [ ! -d "$targetDir" ]; then
-        return;
+    if [ -d "$targetDir" ] && $doBackup; then
+        mv -f "$targetDir" "$backupsDir/"
     fi
+
+    mkdir -p "$targetDir"
     
-    sourceDir="$(pwd)/$2"
-    description="# Setting up $3 #"
+    description="# Setting up $configuredApp #"
     border=$(printf '%*s' "${#description}" | tr ' ' '#')
 
     echo ""
@@ -18,6 +37,14 @@ setup()
     echo "$border"
 
     cd "$sourceDir" || return;
+
+    if [ -f "setup.sh" ]; then
+        echo "Executing $configuredApp setup script..."
+        sh setup.sh "$targetDir"
+        echo "$configuredApp setup script finished."
+    fi
+
+    echo "Linking files..."
     
     find . -type f \
          ! -name '*~' \
@@ -30,12 +57,28 @@ setup()
         
             mkdir -p "$(dirname "$dest")"
         
-            ln -sfv "$(pwd)/$file" "$dest"
+            ln -sf "$(pwd)/$file" "$dest"
           done
-                
-    if [ -f "setup.sh" ]; then
-        sh setup.sh "$targetDir"
-    fi
+    
+    echo "Setup complete: $configuredApp"
 }
 
-setup "$HOME/.emacs.d" emacs "Emacs"
+
+if [ $# -eq 2 ]; then
+    targetDir=$1
+    sourceDir=$2
+
+    targetDir=$(eval echo "$targetDir")
+    sourceDir=$(eval echo "$sourceDir")
+
+
+    echo "Manual setup!"
+    setup "$targetDir" "$sourceDir" "$sourceDir"
+    exit 0
+fi
+
+setup "$HOME/.emacs.d" "emacs" "Emacs"
+setup "$HOME/.config/hypr" "hyprland" "Hyprland"
+setup "$HOME/.config/dunst" "dunst" "Dunst"
+setup "$HOME/.config/rofi" "rofi" "Rofi"
+setup "$HOME/.config/waybar" "waybar" "Waybar"

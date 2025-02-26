@@ -165,8 +165,7 @@ https://melpa.org/#/getting-started
   (defun dw/dired-mode-hook ()
     (interactive)
     (dired-hide-details-mode 1)
-    (unless (or dw/is-termux
-                (string-equal "/gnu/store/" (expand-file-name default-directory)))
+    (unless (string-equal "/gnu/store/" (expand-file-name default-directory))
       (all-the-icons-dired-mode 1))
     (hl-line-mode 1))
 

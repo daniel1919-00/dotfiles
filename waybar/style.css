@@ -1,0 +1,84 @@
+* {
+	font-family: 'Monaspace Xeon', serif;
+	font-size: 14px;
+	color: #cdd6f4;
+}
+
+window#waybar {
+	background: transparent;
+}
+
+#custom-updates,
+#backlight,
+#pulseaudio,
+#cpu,
+#memory,
+#battery,
+#tray,
+#clock,
+#network,
+#keyboard-state,
+#language,
+#wireplumber,
+#idle_inhibitor {
+	background: rgba(0, 0, 0, 0.5);
+	margin: 4px 0 0;
+	padding: 2px 8px;
+	transition: all 0.3s ease;
+}
+
+#window {
+	margin-top: 2px;
+	background: transparent;
+	text-shadow: 0px 0px 2px rgba(0, 0, 0, 1);
+}
+
+#window * {
+	color: rgba(240, 243, 248, 0.8);
+}
+
+#workspaces {
+	margin-left: 4px;
+}
+
+#workspaces button {
+	all: initial;
+	background: rgba(0, 0, 0, 0.6);
+	padding: 2px 12px;
+	margin: 6px 4px 0;
+	border-radius: 8px;
+	border: 2px solid transparent;
+	transition: all 300ms ease-out;
+}
+
+#workspaces button * {
+	color: rgba(255, 255, 255, 0.67);
+}
+
+#workspaces button.active {
+	border-color: rgba(51, 204, 255, 0.8);
+	text-shadow: 0 0 7px rgba(51, 204, 255, 1);
+}
+
+#workspaces button.active * {
+	color: rgba(51, 204, 255, 0.8);
+	font-weight: 700;
+}
+
+#tray {
+	padding-left: 8px;
+}
+
+#custom-updates,
+#pulseaudio,
+#wireplumber,
+#cpu,
+#memory,
+#battery {
+	color: rgba(0, 241, 169, 0.933);
+}
+
+#network,
+#language {
+	color: rgba(124, 177, 255, 0.933);
+}
