@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if ! command -v pacman >/dev/null 2>&1; then 
   printf "\e[31m[$0]: pacman not found, it seems that the system is not ArchLinux or Arch-based distros. Aborting...\e[0m\n"
@@ -13,6 +13,16 @@ fi
 echo "Beware, lots of confirmation incoming!"
 
 yay -S $(cat <<EOF
+git
+grep
+ripgrep
+fd
+hyprland
+uwsm
+nerd-fonts
+gcr
+remmina
+emacs
 alacritty
 nautilus
 nautilus-admin-gtk4
@@ -26,15 +36,33 @@ hyprland-qt-support
 hyprpolkitagent
 qt5-wayland
 qt6-wayland
+qt6ct
 waybar
 rofi-wayland
 cliphist
 udiskie
 hypridle
 hyprlock
-easyeffects
 network-manager-applet
 blueman
+htop
+gnome-keyring
+hyprshot
+hyprpaper
+code
 EOF
 )
 
+TARGET_BASHRC="$HOME/.bashrc"
+
+CODE_BLOCK='if [ "$(tty)" == "/dev/tty1" ]; then
+    if uwsm check may-start; then
+        exec uwsm start hyprland.desktop
+    fi
+fi'
+
+if ! grep -Fxq "$CODE_BLOCK" "$TARGET_BASHRC"; then
+    echo "Updating $TARGET_BASHRC to execute Hyprland when logged to tty1"
+    echo -e "\n$CODE_BLOCK" >> "$TARGET_BASHRC"
+    echo "$TARGET_BASHRC updated"
+fi
